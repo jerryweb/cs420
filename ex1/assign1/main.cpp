@@ -1,3 +1,4 @@
+
 /*
  CSCI 480 Computer Graphics
  Assignment 1: Height Fields
@@ -57,14 +58,11 @@ void saveScreenshot (char *filename)
     pic_free(in);
 }
 
-//void glVertex3f( 3,  1,  2){
-//    
-//}
 
 void myinit()
 {
     /* setup gl view here */
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(1.0, 1.0, 0.8, 1.0);
     glShadeModel(GL_SMOOTH);
 }
 
@@ -72,14 +70,29 @@ void setupCamera(){
     
 }
 
+
+
 void reshape(int w, int h){
-    //create image size
+    
+    GLfloat aspect = (GLfloat) w / (GLfloat) h;
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    if (w <= h) /* aspect <= 1 */
+        glOrtho(-2.0, 2.0, -2.0/aspect, 2.0/aspect, -10.0, 10.0);
+    else /* aspect > 1 */
+        glOrtho(-2.0*aspect, 2.0*aspect, -2.0, 2.0, -10.0, 10.0);
+    glMatrixMode(GL_MODELVIEW);
+    
+    
+    //create image size
+//    glViewport(0, 0, w, h);
+//    glMatrixMode(GL_PROJECTION);
+//    glLoadIdentity();
     
     //set the camera
-    glFrustum(-0.1, 0.1, -float(h)/(10.0*float(w)), float(h)/(10.0*float(w)), 0.5, 1000.0);
+    //glFrustum(-0.1, 0.1, -float(h)/(10.0*float(w)), float(h)/(10.0*float(w)), 0.5, 1000.0);
+    glFrustum(-0.3,0.3 , -640, 640, 0.5, 1000.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -99,20 +112,6 @@ void triangle(){
     
     glEnd();
     
-//    glBegin(GL_TRIANGLES);
-//    
-//    //glRotated(45.0,0.0,0.0,-1.0);
-//    
-//    glColor3f(1.0, 1.0, 1.0);
-//    glVertex3f(-0.5, -0.5, 1.0);
-//    glColor3f(0.0, 0.0, 1.0);
-//    glVertex3f(-0.5, 0.5, 1.0);
-//    glColor3f(0.0, 0.0, 0.0);
-//    glVertex3f(0.5, 0.5, 0.0);
-//    glColor3f(1.0, 1.0, 0.0);
-//    glVertex3f(0.5, -0.5, 0.0);
-//
-//    glEnd();
 
 }
 void shapeList(){
@@ -137,6 +136,9 @@ void shapeList(){
 
 void polygon(){
     
+    
+    glScaled(.5, .5, 1.0);
+    glTranslated(.5, .25, 0);
     glRotated(40.0,0.0,90.0,1.0);
     
     glBegin(GL_POLYGON);
@@ -154,6 +156,55 @@ void polygon(){
     glEnd();
 }
 
+//void cube(){
+    GLfloat vertices[8][3] = {{-1.0, -1.0, -1.0}, {1.0, -1.0, -1.0},
+        {1.0, 1.0, -1.0}, {-1.0, 1.0, -1.0}, {-1.0, -1.0, 1.0},
+        {1.0, -1.0, 1.0}, {1.0, 1.0, 1.0}, {-1.0, 1.0, 1.0}};
+    
+    GLfloat colors[8][3] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+        {1.0, 1.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0},
+        {1.0, 0.0, 1.0}, {1.0, 1.0, 1.0}, {0.0, 1.0, 1.0}};
+    
+    
+//}
+
+void face(int a, int b, int c, int d)
+{
+    glBegin(GL_POLYGON);
+    glColor3fv(colors[a]);
+    glVertex3fv(vertices[a]);
+    glColor3fv(colors[b]);
+    glVertex3fv(vertices[b]);
+    glColor3fv(colors[c]);
+    glVertex3fv(vertices[c]);
+    glColor3fv(colors[d]);
+    glVertex3fv(vertices[d]);
+    glEnd();
+}
+
+void colorcube(void)
+{
+    face(0,3,2,1);
+    face(2,3,7,6);
+    face(0,4,7,3);
+    face(1,2,6,5);
+    face(4,5,6,7);
+    face(0,1,5,4);
+}
+
+GLfloat theta[3] = {0.0, 0.0, 0.0};
+
+GLfloat delta = 2.0;
+GLint axis = 2;
+void spinCube()
+{
+    
+    theta[axis] += delta;
+    if (theta[axis] > 360.0) theta[axis] -= 360.0;
+    
+    glutPostRedisplay();
+}
+
 void display()
 {
     /* draw 1x1 cube about origin */
@@ -165,11 +216,17 @@ void display()
     
     setupCamera();
     
-    glLoadIdentity(); // reset transformation
-    triangle();
-    glLoadIdentity(); // reset transformation
-    polygon();
+    //cube();
+    
     glLoadIdentity();
+    glRotatef(theta[0], 1.0, 0.0, 0.0);
+    glRotatef(theta[1], 0.0, 1.0, 0.0);
+    glRotatef(theta[2], 0.0, 0.0, 1.0);
+    colorcube();
+//    triangle();
+//    glLoadIdentity(); // reset transformation
+//    polygon();
+    //glLoadIdentity();
     //shapeList();
 
     glutSwapBuffers(); // double buffer flush
@@ -191,6 +248,16 @@ void doIdle()
     
     /* make the screen update */
     glutPostRedisplay();
+}
+
+void mouseForCubeSpin(int btn, int state, int x, int y)
+{
+    if ((btn==GLUT_LEFT_BUTTON) && (state == GLUT_DOWN))
+        axis = 0;
+    if ((btn==GLUT_MIDDLE_BUTTON) && (state == GLUT_DOWN))
+        axis = 1;
+    if ((btn==GLUT_RIGHT_BUTTON)&& (state == GLUT_DOWN))
+        axis = 2; 
 }
 
 /* converts mouse drags into information about
@@ -324,18 +391,23 @@ int main (int argc, char ** argv)
     glutAttachMenu(GLUT_RIGHT_BUTTON);
     
     /* replace with any animate code */
-    glutIdleFunc(doIdle);
+    //glutIdleFunc(doIdle);
+    glutIdleFunc(spinCube);
+    
     
     /* callback for mouse drags */
     glutMotionFunc(mousedrag);
     /* callback for idle mouse movement */
     glutPassiveMotionFunc(mouseidle);
     /* callback for mouse button changes */
-    glutMouseFunc(mousebutton);
+    //glutMouseFunc(mousebutton);
+    glutMouseFunc(mouseForCubeSpin);
     
     /* do initialization */
     myinit();
-    //glutReshapeFunc(reshape);
+    glutReshapeFunc(reshape);
+    
+    glEnable(GL_DEPTH_TEST);
     
     glutMainLoop();
     return(0);

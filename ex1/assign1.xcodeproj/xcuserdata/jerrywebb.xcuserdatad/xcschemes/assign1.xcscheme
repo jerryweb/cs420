@@ -59,8 +59,20 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/jerrywebb/Documents/cs420/ex1/assign1/spiral.jpg"
+            argument = "/Users/jerrywebb/Documents/cs420/ex1/assign1/GrandTeton-128.jpg"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jerrywebb/Documents/cs420/ex1/assign1/SantaMonicaMountains-256.jpg"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jerrywebb/Documents/cs420/ex1/assign1/OhioPyle-256.jpg"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jerrywebb/Documents/cs420/ex1/assign1/spiral.jpg"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

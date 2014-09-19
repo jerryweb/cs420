@@ -11,6 +11,7 @@
 #include <GLUT/glut.h>
 #include <pic.h>
 #include <jpeglib.h>
+#include <iostream>
 
 int g_iMenuId;
 
@@ -31,68 +32,111 @@ float g_vLandScale[3] = {1.0, 1.0, 1.0};
 /* see <your pic directory>/pic.h for type Pic */
 Pic * g_pHeightData;
 
+char fileNames[2048];
 
 /* Write a screenshot to the specified filename */
-void saveScreenshot (char *filename)
-{
+void saveScreenshot (char *filename){
+    
     int i, j;
+    
     Pic *in = NULL;
     
+    Pic *out = NULL;
+    
     if (filename == NULL)
+        
         return;
     
-    /* Allocate a picture buffer */
     in = pic_alloc(640, 480, 3, NULL);
     
+    out = pic_alloc(640, 480, 3, NULL);
+    
     printf("File to save to: %s\n", filename);
+    //  for (i=479; i>=0; i--) {
     
-    for (i=479; i>=0; i--) {
-        glReadPixels(0, 479-i, 640, 1, GL_RGB, GL_UNSIGNED_BYTE,
-                     &in->pix[i*in->nx*in->bpp]);
-    }
-    for(j=639; i>=0; i--){
-        glReadPixels(0, 480, 639-j, 1, GL_RGB, GL_UNSIGNED_BYTE, &in->pix[i*in->ny*in->bpp]);
+    //    glReadPixels(0, 479-i, 640, 1, GL_RGB, GL_UNSIGNED_BYTE, &in->pix[i*in->nx*in->bpp]);
+    
+    //  }
+    
+    glReadPixels(0, 0, 640, 480, GL_RGB, GL_UNSIGNED_BYTE, &in->pix[0]);
+    
+    for ( int j=0; j<480; j++ ) {
+        
+        for ( int i=0; i<640; i++ ) {
+            
+            PIC_PIXEL(out, i, j, 0) = PIC_PIXEL(in, i, 480-1-j, 0);
+            
+            PIC_PIXEL(out, i, j, 1) = PIC_PIXEL(in, i, 480-1-j, 1);
+            
+            PIC_PIXEL(out, i, j, 2) = PIC_PIXEL(in, i, 480-1-j, 2);
+            
+        } 
+        
     }
     
-    if (jpeg_write(filename, in))
-        printf("File saved Successfully\n");
-    else
+    if (jpeg_write(filename, out))       
+        
+        printf("File saved Successfully\n");   
+    
+    else       
+        
         printf("Error in Saving\n");
     
-    pic_free(in);
+    pic_free(in);    
     
-    
-    //PIC_PIXEL(filename, i, j, 0);
-    
+    pic_free(out);
     
 }
+//void saveScreenshot (char *filename)
+//{
+//    int i, j;
+//    Pic *in = NULL;
+//    
+//    if (filename == NULL)
+//        return;
+//    
+//    /* Allocate a picture buffer */
+//    in = pic_alloc(640, 480, 3, NULL);
+//    
+//    printf("File to save to: %s\n", filename);
+//    
+//    for (i=479; i>=0; i--) {
+//        glReadPixels(0, 479-i, 640, 1, GL_RGB, GL_UNSIGNED_BYTE,
+//                     &in->pix[i*in->nx*in->bpp]);
+//    }
+//    for(j=639; j>=0; j--){
+//        glReadPixels(0, 480, 639-j, 1, GL_RGB, GL_UNSIGNED_BYTE, &in->pix[j*in->ny*in->bpp]);
+//    }
+//    
+//    if (jpeg_write(filename, in))
+//        printf("File saved Successfully\n");
+//    else
+//        printf("Error in Saving\n");
+//    
+//    pic_free(in);
+//    
+//    
+//}
 
 
 void myinit()
 {
     /* setup gl view here */
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+//    glClearColor(0.0,0.0,0.0,0.0);
     glShadeModel(GL_SMOOTH);
 }
-
-void setupCamera(){
-    
-}
-
 
 
 void reshape(int w, int h){
     
-//    GLfloat aspect = (GLfloat) w / (GLfloat) h;
-//    glViewport(0, 0, w, h);
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    if (w <= h) /* aspect <= 1 */
-//        glOrtho(-2.0, 2.0, -2.0/aspect, 2.0/aspect, -10.0, 10.0);
-//    else /* aspect > 1 */
-//        glOrtho(-2.0*aspect, 2.0*aspect, -2.0, 2.0, -10.0, 10.0);
-//    glMatrixMode(GL_MODELVIEW);
-//    
+    
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(100,(GLfloat) w/h, .05, 1000);
+        glMatrixMode(GL_MODELVIEW);
+//
     
     //create image size
 //    glViewport(0, 0, w, h);
@@ -100,24 +144,22 @@ void reshape(int w, int h){
 //    glLoadIdentity();
     
     //set the camera
-    //glFrustum(-0.1, 0.1, -float(h)/(10.0*float(w)), float(h)/(10.0*float(w)), 0.5, 1000.0);
-//    //glFrustum(-0.3,0.3 , -640, 640, 0.5, 1000.0);
-////    glMatrixMode(GL_MODELVIEW);
-////    glLoadIdentity();
+//    glFrustum(-0.3,0.3 , -640, 640, 0.5, 1000.0);
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
 }
 
-void triangle(){
+void drawTriangles(){
     
-    glRotated(45.0,8.0,0.0,-1.0);
+    glBegin(GL_TRIANGLE_FAN);
     
-    glBegin(GL_TRIANGLES);
-    
-	glColor3f(0.0, 0.0, 0.0);
+	//glColor3f(0.0, 0.0, 0.0);
     glVertex3f(-0.25, -0.25, 0.50);
     glColor3f(0.0, 0.0, 1.0);
     glVertex3f(-0.25, 0.25, 0.50);
-    glColor3f(0.0, 0.0, 0.0);
+    //glColor3f(0.0, 0.0, 0.0);
     glVertex3f(0.25, 0.25, 0.0);
+    glVertex3f(0.25, -.25, 0.0);
     
     glEnd();
     
@@ -126,19 +168,27 @@ void triangle(){
 
 void drawPoints(){
     
+    int height, width;
+    height = g_pHeightData->ny;
+    width = g_pHeightData->nx;
     
-        
-    glBegin(GL_LINES);
-    for(int i = 0; i<5;i++){
-        glColor3f(1.0, 1.0, 1.0);
-        glVertex3f(i/5, i/5, 0);
-        glColor3f(0.0, 0.0, 0.0);
-        glVertex3f(1 + i/5,1 + i/5, 0);
-        //    glColor3f(0.0, 0.0, 0.0);
-        //    glVertex3f(2, 0, 0);    }
-    
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i<width;i++){
+        for(int j = 0; j<height; j++){
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
+//           std::cout << heightValRed/255.0 << std::endl;
+            glColor3f(heightValRed/255, 0.0, 0.0);
+            //glVertex3f(g_pHeightData->pix[i]/100, g_pHeightData->pix[j]/100, 0.50*j);
+//            glColor3f(0.0, 0.0, 1.0);
+            glVertex3f(j, i, heightValRed/10 - 120);
+            //glColor3f(0.0, 0.0, 0.0);
+            glVertex3f(j+1,i+1, heightValRed/10 - 120);
+        }
     }
-    glEnd();
+    
+     glEnd();
 }
 
 void shapeList(){
@@ -239,17 +289,17 @@ void display()
     /* replace this code with your height field implementation */
     /* you may also want to precede it with your
      rotation/translation/scaling */
+    
     // clear buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    setupCamera();
-    
     glLoadIdentity();
     
-    //gluLookAt(0.0, 0.0, 0.0, 0.0, 1.0, -100.0, 0.0, 1.0, 0.0);
     glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
     glTranslated(g_vLandTranslate[0], g_vLandTranslate[1], g_vLandTranslate[2]);
-    glRotatef(g_vLandRotate[0]/5, g_vLandRotate[0], g_vLandRotate[1], g_vLandRotate[2]);
+    glRotatef(g_vLandRotate[0]/10, g_vLandRotate[0], g_vLandRotate[1], g_vLandRotate[2]);
+    //gluLookAt(0.0, 0.0, 0.0, 0.0, 1.0, -100.0, 0.0, 1.0, 0.0);
+
 //    glRotatef(theta[0], 1.0, 0.0, 0.0);
 //    glRotatef(theta[1], 0.0, 1.0, 0.0);
 //    glRotatef(theta[2], 0.0, 0.0, 1.0);
@@ -257,7 +307,7 @@ void display()
     //glLoadIdentity();
     drawPoints();
   
-    //triangle();
+  //  drawTriangles();
 
 
     glutSwapBuffers(); // double buffer flush
@@ -379,6 +429,8 @@ bool stop;
 
 void keyboard(unsigned char key, int x, int y)
 {
+    if (key =='p' || key =='P')
+        
     if (key=='q' || key == 'Q')
         exit(0);
     if (key==' ')
@@ -403,6 +455,9 @@ int main (int argc, char ** argv)
         printf ("error reading %s.\n", argv[1]);
         exit(1);
     }
+    std::cout << g_pHeightData->nx << std::endl;
+    std::cout << g_pHeightData->ny << std::endl;
+
     
     glutInit(&argc,argv);
     

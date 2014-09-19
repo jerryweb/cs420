@@ -137,10 +137,10 @@ void myinit()
 void reshape(int w, int h){
     
     
-    glViewport(0, 0, w, h);
+    glViewport(0,0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(100,(GLfloat) w/h, .1, 1000);
+    gluPerspective(120,(GLfloat) w/h, .01, 1000.0);
     glMatrixMode(GL_MODELVIEW);
 //
     
@@ -155,34 +155,51 @@ void reshape(int w, int h){
 //    glLoadIdentity();
 }
 
+//renders the image using triangles
 void drawTriangles(){
     
     int height, width;
     height = g_pHeightData->ny;
     width = g_pHeightData->nx;
     
-    glBegin(GL_TRIANGLE_STRIP);
-    for(int i = 0; i<width;i++){
-        for(int j = 0; j<height; j++){
+    glBegin(GL_TRIANGLES);
+    for(int i = 0; i<height;i++){
+        for(int j = 0; j<width; j++){
             
-            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
-            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
-            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, j, i, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, j, i, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, j, i, 2);
             
             glColor3f(heightValRed/255, 0.0, 0.0);
-            glVertex3f(i, -0.25, 0.50);
-            glColor3f(0.0, 0.0, 1.0);
-            glVertex3f(-0.25, 0.25, 0.50);
-            //glColor3f(0.0, 0.0, 0.0);
-            glVertex3f(0.25, 0.25, 0.0);
-            glVertex3f(0.25, -.25, 0.0);
-    
+            glVertex3f(j, i, heightValGreen/10 - 120);
+            glColor3f(0.0, heightValGreen/255, 0.0);
+            glVertex3f(j, i+1, heightValGreen/10 - 120);
+            glColor3f(0.0, 0.0, heightValBlue/255);
+            glVertex3f(j+1, i, heightValGreen/10 - 120);
             
         }
     }
     glEnd();
-
 }
+
+
+
+
+
+void makeStrips(){
+    int height, width;
+    height = g_pHeightData->ny;
+    width = g_pHeightData->nx;
+    
+    for(int i = 0; i<height-1;i++){
+        for(int j = 0; j<width; j++){
+            
+          
+        }
+    }
+}
+
+
 
 //renderes the selected image using points
 void drawPoints(){
@@ -190,14 +207,15 @@ void drawPoints(){
     int height, width;
     height = g_pHeightData->ny; //the x pixel position
     width = g_pHeightData->nx; //the y pixel position
-
+    GLfloat vertices[g_pHeightData->nx][g_pHeightData->ny];
+    
     glBegin(GL_POINTS);
-    for(int i = 0; i<width;i++){
-        for(int j = 0; j<height; j++){
-            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
-            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
-            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
-        
+    for(int i = 0; i<height;i++){
+        for(int j = 0; j<width; j++){
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, j, i, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, j, i, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, j, i, 2);
+            
             glColor3f(heightValRed/255, 0.0, 0.0);
             glVertex3f(j, i, heightValRed/10 - 120);
 
@@ -214,16 +232,17 @@ void drawLines(){
     height = g_pHeightData->ny;
     width = g_pHeightData->nx;
     
-    glBegin(GL_LINE_STRIP);
-    for(int i = 0; i<width;i++){
-        for(int j = 0; j<height; j++){
-            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
-            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
-            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
+    glBegin(GL_LINES);
+    for(int i = 0; i<height;i++){
+        for(int j = 0; j<width; j++){
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, j, i, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, j, i, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, j, i, 2);
 //           std::cout << heightValRed/255.0 << std::endl;
-            glColor3f(heightValRed/255, 0.0, heightValBlue/255);
-            glVertex3f(j, i, heightValRed/10 - 120);
-
+            glColor3f(heightValRed/255, 0.0, 0.0);
+            glVertex3f(j,i, heightValRed/10 - 120);
+            glColor3f(heightValRed/255, 0.0, 0.0);
+            glVertex3f(j, i+1, heightValRed/10 - 120);
         }
     }
     
@@ -309,7 +328,7 @@ void colorcube(void)
 }
 
 GLfloat theta[3] = {0.0, 0.0, 0.0};
-
+GLfloat Pi = 3.14159;
 GLfloat delta = 0.5;
 GLint axis = 2;
 
@@ -334,9 +353,13 @@ void display()
     
     glLoadIdentity();
     
-    glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
+    glRotatef(g_vLandRotate[0]/10 , g_vLandRotate[0], g_vLandRotate[1], g_vLandRotate[2]);
     glTranslated(g_vLandTranslate[0], g_vLandTranslate[1], g_vLandTranslate[2]);
-    glRotatef(g_vLandRotate[0]/10, g_vLandRotate[0], g_vLandRotate[1], g_vLandRotate[2]);
+    glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
+    
+    
+    
+    
     //gluLookAt(0.0, 0.0, 0.0, 0.0, 1.0, -100.0, 0.0, 1.0, 0.0);
 
 //    glRotatef(theta[0], 1.0, 0.0, 0.0);
@@ -350,8 +373,6 @@ void display()
         drawLines();
     else
         drawTriangles();
-
-
     glutSwapBuffers(); // double buffer flush
 }
 

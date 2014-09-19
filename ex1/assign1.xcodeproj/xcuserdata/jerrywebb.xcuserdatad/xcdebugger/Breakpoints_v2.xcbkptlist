@@ -6,30 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "assign1/main.cpp"
-            timestampString = "432720674.287463"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "assign1/main.cpp"
-            timestampString = "432778425.169638"
+            timestampString = "432795121.181751"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "182"
-            endingLineNumber = "182"
-            landmarkName = "drawPoints()"
+            startingLineNumber = "225"
+            endingLineNumber = "225"
+            landmarkName = "drawLines()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -40,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "assign1/main.cpp"
-            timestampString = "432778425.169638"
+            timestampString = "432795121.181751"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "183"
-            endingLineNumber = "183"
-            landmarkName = "drawPoints()"
+            startingLineNumber = "220"
+            endingLineNumber = "220"
+            landmarkName = "drawLines()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -56,27 +42,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "assign1/main.cpp"
-            timestampString = "432778425.169638"
+            timestampString = "432795121.181751"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
-            landmarkName = "drawPoints()"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
+            landmarkName = "display()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "assign1/main.cpp"
-            timestampString = "432778425.169638"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "286"
-            endingLineNumber = "286">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

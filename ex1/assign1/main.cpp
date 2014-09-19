@@ -22,6 +22,12 @@ int g_iRightMouseButton = 0;
 
 typedef enum { ROTATE, TRANSLATE, SCALE } CONTROLSTATE;
 
+//booleans to switch between point, line, and triangle view
+bool pointSelect = true;
+bool lineSelect = false;
+bool triangleSelect = false;
+
+
 CONTROLSTATE g_ControlState = ROTATE;
 
 /* state of the world */
@@ -134,8 +140,8 @@ void reshape(int w, int h){
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(100,(GLfloat) w/h, .05, 1000);
-        glMatrixMode(GL_MODELVIEW);
+    gluPerspective(100,(GLfloat) w/h, .1, 1000);
+    glMatrixMode(GL_MODELVIEW);
 //
     
     //create image size
@@ -151,22 +157,58 @@ void reshape(int w, int h){
 
 void drawTriangles(){
     
-    glBegin(GL_TRIANGLE_FAN);
+    int height, width;
+    height = g_pHeightData->ny;
+    width = g_pHeightData->nx;
     
-	//glColor3f(0.0, 0.0, 0.0);
-    glVertex3f(-0.25, -0.25, 0.50);
-    glColor3f(0.0, 0.0, 1.0);
-    glVertex3f(-0.25, 0.25, 0.50);
-    //glColor3f(0.0, 0.0, 0.0);
-    glVertex3f(0.25, 0.25, 0.0);
-    glVertex3f(0.25, -.25, 0.0);
+    glBegin(GL_TRIANGLE_STRIP);
+    for(int i = 0; i<width;i++){
+        for(int j = 0; j<height; j++){
+            
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
+            
+            glColor3f(heightValRed/255, 0.0, 0.0);
+            glVertex3f(i, -0.25, 0.50);
+            glColor3f(0.0, 0.0, 1.0);
+            glVertex3f(-0.25, 0.25, 0.50);
+            //glColor3f(0.0, 0.0, 0.0);
+            glVertex3f(0.25, 0.25, 0.0);
+            glVertex3f(0.25, -.25, 0.0);
     
+            
+        }
+    }
     glEnd();
-    
 
 }
 
+//renderes the selected image using points
 void drawPoints(){
+    
+    int height, width;
+    height = g_pHeightData->ny; //the x pixel position
+    width = g_pHeightData->nx; //the y pixel position
+
+    glBegin(GL_POINTS);
+    for(int i = 0; i<width;i++){
+        for(int j = 0; j<height; j++){
+            unsigned char heightValRed = PIC_PIXEL(g_pHeightData, i, j, 0);
+            unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
+            unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
+        
+            glColor3f(heightValRed/255, 0.0, 0.0);
+            glVertex3f(j, i, heightValRed/10 - 120);
+
+        }
+    }
+    
+    glEnd();
+}
+
+
+void drawLines(){
     
     int height, width;
     height = g_pHeightData->ny;
@@ -179,12 +221,9 @@ void drawPoints(){
             unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, i, j, 1);
             unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, i, j, 2);
 //           std::cout << heightValRed/255.0 << std::endl;
-            glColor3f(heightValRed/255, 0.0, 0.0);
-            //glVertex3f(g_pHeightData->pix[i]/100, g_pHeightData->pix[j]/100, 0.50*j);
-//            glColor3f(0.0, 0.0, 1.0);
+            glColor3f(heightValRed/255, 0.0, heightValBlue/255);
             glVertex3f(j, i, heightValRed/10 - 120);
-            //glColor3f(0.0, 0.0, 0.0);
-            glVertex3f(j+1,i+1, heightValRed/10 - 120);
+
         }
     }
     
@@ -305,9 +344,12 @@ void display()
 //    glRotatef(theta[2], 0.0, 0.0, 1.0);
     //colorcube();
     //glLoadIdentity();
-    drawPoints();
-  
-  //  drawTriangles();
+    if(pointSelect)
+        drawPoints();
+    else if(lineSelect)
+        drawLines();
+    else
+        drawTriangles();
 
 
     glutSwapBuffers(); // double buffer flush
@@ -430,7 +472,33 @@ bool stop;
 void keyboard(unsigned char key, int x, int y)
 {
     if (key =='p' || key =='P')
-        
+    {
+        if(lineSelect)
+            lineSelect = false;
+        if(triangleSelect)
+            triangleSelect = false;
+    
+        pointSelect = true;
+    }
+    
+    if(key == 'l' || key == 'L')
+    {
+        if(pointSelect)
+            pointSelect = false;
+        if(triangleSelect)
+            triangleSelect = false;
+        lineSelect = true;
+    }
+    
+    if(key == 't' || key == 't')
+    {
+        if(pointSelect)
+            pointSelect = false;
+        if (lineSelect)
+            lineSelect = false;
+        triangleSelect = true;
+    }
+           
     if (key=='q' || key == 'Q')
         exit(0);
     if (key==' ')

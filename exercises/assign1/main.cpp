@@ -27,6 +27,8 @@ double basisMatrix[4][4] = {{-s,2-s,s-2,s},
     {2*s,s-3,3-2*s,-s},
     {-s,0,s,0},
     {0,1,0,0}};
+//double basisMatrix[4][4] = {{0,1,0,0}, {-0.5,0,0.5,0}, {1,-2.5,2,-0.5}, {-0.5,1.5,-1.5,0.5}};
+
 
 //This loads all of the textures into an array
 GLuint skyTexture[5];
@@ -40,18 +42,18 @@ void texLoad(int i,char *filename){
     Pic* img;
     img = jpeg_read(filename, NULL);
     glBindTexture(GL_TEXTURE_2D, skyTexture[i]);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, img->nx, img->ny, 0, GL_RGB,GL_UNSIGNED_BYTE, &img->pix[0]);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, img->nx, img->ny, 0, GL_RGB,GL_UNSIGNED_BYTE, &img->pix[0]);
     pic_free(img);
 }
 //
-//void textureInit(){
-//    glGenTextures(5, skyTexture);
-//    texLoad(0, skyPic1);
-//    texLoad(1, skyPic2);
-//    texLoad(2, skyPic3);
-//    texLoad(3, skyPic4);
-//    texLoad(4, skyPic5);
-//}
+void textureInit(){
+    glGenTextures(5, skyTexture);
+    texLoad(0, skyPic1);
+    texLoad(1, skyPic2);
+    texLoad(2, skyPic3);
+    texLoad(3, skyPic4);
+    texLoad(4, skyPic5);
+}
 
 
 
@@ -91,8 +93,6 @@ struct spline *g_Splines;
 
 /* total number of splines */
 int g_iNumOfSplines;
-
-Mat mFinal(4,3);
 
 int loadSplines(char *argv) {
     char *cName = (char *)malloc(128 * sizeof(char));
@@ -145,8 +145,6 @@ int loadSplines(char *argv) {
     return 0;
 }
 
-int mainCounter =0;
-
 void createControlArray(int PointIteration,int SplineNumber, double *CPoints){
     int counter = 0;
     for(int i = 0; i<PointIteration-2;i++){
@@ -161,9 +159,9 @@ void createControlArray(int PointIteration,int SplineNumber, double *CPoints){
 double U[10];
 
 GLfloat vertices[8][3] =
-{{-5.0, -5.0, -2.5}, {5.0, -5.0, -2.5},
-	 	 {5.0, 5.0, -2.5}, {-5.0, 5.0, -2.5}, {-5.0, -5.0, 2.5},
-	 	 {5.0, -5.0, 2.5}, {5.0, 5.0, 2.5}, {-5.0, 5.0, 2.5}};
+{{-10.0, -10.0, -10.0}, {10.0, -10.0, -5.0},
+	 	 {10.0, 10.0, -5.0}, {-10.0, 10.0, -5.0}, {-10.0, -10.0, 5.0},
+	 	 {10.0, -10.0, 5.0}, {10.0, 10.0, 5.0}, {-10.0, 10.0, 7.0}};
 
 GLfloat colors[8][3] =
 {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
@@ -172,37 +170,22 @@ GLfloat colors[8][3] =
 
 
 void face(int a, int b, int c, int d){
-//    glBindTexture(GL_TEXTURE_2D, skyTexture[0]);
-//    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     glBegin(GL_POLYGON);
 //			 glColor3fv(colors[a]);
-        glTexCoord2f(0.5, 0.0);
+        glTexCoord2f(1.0, 1.0);
         glVertex3fv(vertices[a]);
 //			 glColor3fv(colors[b]);
-        glTexCoord2f(0.0, 0.0);
+        glTexCoord2f(0.0, 1.0);
         glVertex3fv(vertices[b]);
 //			 glColor3fv(colors[c]);
-    glTexCoord2f(0.0, 0.5);
+    glTexCoord2f(0.0, 0.0);
         glVertex3fv(vertices[c]);
-//			 glColor3fv(colors[d]);
-    glTexCoord2f(0.5, 0.5);
+//			 glColor3f(0.0,0.0,0.0);
+    glTexCoord2f(1.0, 0.0);
         glVertex3fv(vertices[d]);
     glEnd();
-//    glDisable(GL_TEXTURE_2D);
 }
-
-void colorcube(void){
-//	 	 face(0,3,2,1);
-//	 	 face(2,3,7,6);
-//	 	 face(0,4,7,3);
-//	 	 face(1,2,6,5);
-//	 	 face(4,5,6,7);
-//	 	 face(0,1,5,4);
-}
-
 
 
 //void createUValues(double key){
@@ -219,66 +202,19 @@ void colorcube(void){
 //    return;
 //}
 
-//Mat ComputePointLocation(int uSelection,int splineNum){
-//    double arrayinput[1][4];
-//    double ControlPointArray[g_Splines[splineNum].numControlPoints * 3];
-////    double ArraySize = sizeof(ControlPointArray)/sizeof(*ControlPointArray);
-//    double tempArray[g_Splines[splineNum].numControlPoints * 3];
-//    /*This creates an array of constantly increasing U values (key) and stores them into a 1x4 matrix*/
-//    createUValues(0.1);
-//    arrayinput[0][3] = 1;
-//    arrayinput[0][2] = U[uSelection];
-//    arrayinput[0][1] = U[uSelection]*U[uSelection];
-//    arrayinput[0][0] = U[uSelection]*U[uSelection]*U[uSelection];
-//    
-//    Mat mKey(1,4,*arrayinput);
-//
-//    createControlArray(g_Splines[splineNum].numControlPoints,splineNum, ControlPointArray);
-//
-//    int k = 0;
-//    int outputCounter = 0;
-//    for(int j =0;j<7;j++){
-//        //if(k != (g_Splines[0].numControlPoints-1)){
-//        double tempA[12];
-//        for(int i =0; i<12;i++){
-//            tempA[i] = ControlPointArray[k];
-//            k++;
-////               cout<<ControlPointArray[k]<< "     " << k << endl;
-//        }
-//        Mat mControlMatrix(4,3,tempA);
-//        mControlMatrix.show();
-//        Mat mtempMatrix = mBasis.mul(mControlMatrix);
-//        mFinal = mKey.mul(mtempMatrix);
-//        mFinal.show();
-//        tempArray[outputCounter] = mFinal(0,0);
-//        tempArray[outputCounter+1] = mFinal(0,1);
-//        tempArray[outputCounter+2] = mFinal(0,2);
-//        //tempArray[outputCounter+3] = mFinal(0,2);
-//        outputCounter +=3;
-//    }
-//    Mat mOut((g_Splines[splineNum].numControlPoints/3),3,tempArray);
-//    return mOut;
-//}
-
-void drawPlain(){
-    glBegin(GL_POLYGON);
-        glColor3f(0.0, 1.0, 0.0);
-        glVertex3f(-2, -2, -2.5);
-        glVertex3f(2, -2, -2.5);
-        glVertex3f(-2, 2, -2.5);
-        glVertex3f(2, 2, -2.5);
-    glEnd();
-}
-
 double catmullRom(float u, float v0, float v1, float v2, float v3){
     double h1,h2,h3,h4;
-    h1 = (u*u*u)*(v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
-    h2 = (u*u)*(v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
-    h3 = u*(v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
+//    h1 = (u*u*u)*(v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
+//    h2 = (u*u)*(v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
+//    h3 = u*(v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
+//    h4 = v0*basisMatrix[3][0] + v1*basisMatrix[3][1] + v2*basisMatrix[3][2] + v3*basisMatrix[3][3];
+    h1 = (v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
+    h2 = (v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
+    h3 = (v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
     h4 = v0*basisMatrix[3][0] + v1*basisMatrix[3][1] + v2*basisMatrix[3][2] + v3*basisMatrix[3][3];
     
-//    double x = (((h4*u + h3)*u +h2)*u + h1);
-    double point = h4 +h3 + h2 +h1;
+    double point = (((h4*u + h3)*u +h2)*u + h1);
+//    double point = h4 +h3 + h2 +h1;
 //    cout << point << endl;
     return point;
 }
@@ -355,27 +291,27 @@ GLfloat ctrlpoints[4][3] = {
     {0.5, -1.0, 1.0}, {1.0, 1.0, 0.0}};
 
 void addTextures(){
-    glBindTexture(GL_TEXTURE_2D, skyTexture[0]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, skyTexture[2]);
+    
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
-    
-    glEnable(GL_TEXTURE_2D);
     face(0,3,2,1);
     
     
     
     glBindTexture(GL_TEXTURE_2D, skyTexture[1]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+//    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
     
     face(2,3,7,6);
     
-    glBindTexture(GL_TEXTURE_2D, skyTexture[2]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glBindTexture(GL_TEXTURE_2D, skyTexture[0]);
+//    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
@@ -383,21 +319,21 @@ void addTextures(){
     face(0,4,7,3);
     
     glBindTexture(GL_TEXTURE_2D, skyTexture[3]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+//    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
     face(1,2,6,5);
     
-    glBindTexture(GL_TEXTURE_2D, skyTexture[2]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glBindTexture(GL_TEXTURE_2D, skyTexture[3]);
+//    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
     face(4,5,6,7);
     //
     glBindTexture(GL_TEXTURE_2D, skyTexture[4]);
-    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
@@ -405,30 +341,7 @@ void addTextures(){
     glDisable(GL_TEXTURE_2D);
 }
 
-//void drawpoints(){
-//    
-//    glBegin(GL_POINTS);
-//    glColor3f(0.0, 0.0, 0.0);
-//    glLineWidth(1.5);
-//    
-//    for(int k =0; k<g_iNumOfSplines;k++){
-//        Mat mFirstPoint(ComputePointLocation(0,k));
-//        glVertex3d(mFirstPoint(0,0), mFirstPoint(0,1), mFirstPoint(0,2)-1);
-//        glVertex3d(mFirstPoint(1,0), mFirstPoint(1,1), mFirstPoint(1,2)-1);
-//        for(int l =1; l<9;l++){
-//            Mat pointLocation(ComputePointLocation(l,k));
-//            for(int i = 1;i<g_Splines[k].numControlPoints-2;i++){
-//                glVertex3d(pointLocation(i-1,0), pointLocation(i-1,1), pointLocation(i-1,2)-1);
-//                glVertex3d(pointLocation(i,0), pointLocation(i,1), pointLocation(i,2)-1);
-//            }
-//        }
-//        Mat mLastPoint(ComputePointLocation(g_Splines[k].numControlPoints-1,k));
-//        glVertex3d(mLastPoint(g_Splines[k].numControlPoints-2,0), mLastPoint(g_Splines[k].numControlPoints-2,1), mLastPoint(g_Splines[k].numControlPoints-2,2)-1);
-//        glVertex3d(mLastPoint(g_Splines[k].numControlPoints-1,0), mLastPoint(g_Splines[k].numControlPoints-1,1), mLastPoint(g_Splines[k].numControlPoints-1,2)-1);
-//    }
-//    glEnd();
-//}
-//
+
 vector<double> pointArray;
 
 void drawSpline(){
@@ -437,7 +350,7 @@ void drawSpline(){
     for(int k =0; k< g_iNumOfSplines;k++){
         u = 0;
   
-        for(int i = 0;i<1000;i++){
+        for(int i = 0;i<=1000;i++){
             for(int PointIteration = 0;PointIteration<g_Splines[k].numControlPoints;PointIteration+=4){
                 float x = catmullRom(u, g_Splines[k].points[PointIteration].x,  g_Splines[k].points[PointIteration+1].x,  g_Splines[k].points[PointIteration +2].x,  g_Splines[k].points[PointIteration + 3].x);
                 float y = catmullRom(u, g_Splines[k].points[PointIteration].y,  g_Splines[k].points[PointIteration +1].y,  g_Splines[k].points[PointIteration+2].y,  g_Splines[k].points[PointIteration+3].y);
@@ -452,7 +365,7 @@ void drawSpline(){
     }
 
     glBegin(GL_POINTS);
-    glColor3d(0.0, 1.0, 0.0);
+    glColor3d(0.0, 0.0, 0.0);
     for(int i =0;i<pointArray.size();i+=3){
         if(i<3){
             glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
@@ -483,7 +396,8 @@ void display(void){
     glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
     
     addTextures();
-//    drawSpline();
+
+    drawSpline();
     
 //    drawPointsForBackground();
   //  drawTrianglesForBackground();
@@ -510,13 +424,7 @@ void Init()
 //    glEnable(GL_LINE_SMOOTH);
 //    glEnable(GL_BLEND);
     glLineWidth(1.5);
-    
-    glGenTextures(5, skyTexture);
-    texLoad(0, skyPic1);
-    texLoad(1, skyPic2);
-    texLoad(2, skyPic3);
-    texLoad(3, skyPic4);
-    texLoad(4, skyPic5);
+
 
 }
 
@@ -686,7 +594,8 @@ int main (int argc, char ** argv)
     /*generates the U value array*/
 
     Init();
-//    textureInit();
+    textureInit();
+    
     glutReshapeFunc(reshape);
 
 //    glEnable(GL_LINE_SMOOTH);

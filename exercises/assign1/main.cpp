@@ -145,17 +145,6 @@ int loadSplines(char *argv) {
     return 0;
 }
 
-void createControlArray(int PointIteration,int SplineNumber, double *CPoints){
-    int counter = 0;
-    for(int i = 0; i<PointIteration-2;i++){
-        CPoints[counter] = s*g_Splines[SplineNumber].points[i].x;
-        CPoints[counter +1] = s*g_Splines[SplineNumber].points[i].y;
-        CPoints[counter +2] = s*g_Splines[SplineNumber].points[i].z;
-        counter +=3;
-    }
-
-}
-
 double U[10];
 
 GLfloat vertices[8][3] =
@@ -188,45 +177,25 @@ void face(int a, int b, int c, int d){
 }
 
 
-//void createUValues(double key){
-//    double numberOfValues = (1/key);
-//    for(int i = 0; i<numberOfValues;i++){
-//        if(i == 0){
-//            U[i] = 0;
-//        }
-//        else
-//            U[i] = key + U[i-1];
-//
-//    }
-//
-//    return;
-//}
-
 double catmullRom(float u, float v0, float v1, float v2, float v3){
     double h1,h2,h3,h4;
-//    h1 = (u*u*u)*(v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
-//    h2 = (u*u)*(v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
-//    h3 = u*(v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
-//    h4 = v0*basisMatrix[3][0] + v1*basisMatrix[3][1] + v2*basisMatrix[3][2] + v3*basisMatrix[3][3];
-    h1 = (v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
-    h2 = (v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
-    h3 = (v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
+    h1 = (u*u*u)*(v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
+    h2 = (u*u)*(v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
+    h3 = u*(v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
     h4 = v0*basisMatrix[3][0] + v1*basisMatrix[3][1] + v2*basisMatrix[3][2] + v3*basisMatrix[3][3];
-    
-    double point = (((h4*u + h3)*u +h2)*u + h1);
+//    h1 = (v0*basisMatrix[0][0] + v1*basisMatrix[0][1] + v2*basisMatrix[0][2] + v3*basisMatrix[0][3]);
+//    h2 = (v0*basisMatrix[1][0] + v1*basisMatrix[1][1] + v2*basisMatrix[1][2] + v3*basisMatrix[1][3]);
+//    h3 = (v0*basisMatrix[2][0] + v1*basisMatrix[2][1] + v2*basisMatrix[2][2] + v3*basisMatrix[2][3]);
+//    h4 = v0*basisMatrix[3][0] + v1*basisMatrix[3][1] + v2*basisMatrix[3][2] + v3*basisMatrix[3][3];
+//
+    double point = 0.5*((2*v1)+(-v0+v1)*u + (2*v0 - 5*v1 + 4*v2 - v3)*(u*u) + (-v0 + 3*v1- 3*v2 + v3)*(u*u*u));
+// double   double point = (((h4*u + h3)*u +h2)*u + h1);
 //    double point = h4 +h3 + h2 +h1;
+//    cout << point << endl;
 //    cout << point << endl;
     return point;
 }
 
-void calculateCatmullRomPoints(double u, int PointIteration){
-    //double  u = 0.1;
-    float x = catmullRom(u, g_Splines[0].points[PointIteration].x,  g_Splines[0].points[PointIteration+1].x,  g_Splines[0].points[PointIteration +2].x,  g_Splines[0].points[PointIteration + 3].x);
-    float y = catmullRom(u, g_Splines[0].points[PointIteration].y,  g_Splines[0].points[PointIteration +1].y,  g_Splines[0].points[PointIteration+2].y,  g_Splines[0].points[PointIteration+3].y);
-    float z = catmullRom(u, g_Splines[0].points[PointIteration].z,  g_Splines[0].points[PointIteration+1].z,  g_Splines[0].points[PointIteration+2].z,  g_Splines[0].points[PointIteration+3].z);
-    
-    cout << x << "  " << y << "  " << z << endl;
-}
 
 void drawPointsForBackground(){
     
@@ -234,7 +203,8 @@ void drawPointsForBackground(){
     height = g_pHeightData->ny; //the x pixel position
     width = g_pHeightData->nx; //the y pixel position
     GLfloat vertices[g_pHeightData->nx][g_pHeightData->ny];
-    
+    glRotated(270, 0.0, 0.0, 0.0);
+    glTranslated(-10.0,0.0, 0.0);
     glBegin(GL_POINTS);
     for(int i = 0; i<height-1;i++){
         for(int j = 0; j<width-1; j++){
@@ -256,6 +226,13 @@ void drawTrianglesForBackground(){
     height = g_pHeightData->ny;
     width = g_pHeightData->nx;
     
+    glRotated(270, 0.0, 0.0, 0.0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, skyTexture[4]);
+    glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+
     glBegin(GL_TRIANGLES);
     for(int i = 0; i<height-1;i++){
         for(int j = 0; j<width-1; j++){
@@ -268,27 +245,32 @@ void drawTrianglesForBackground(){
             //unsigned char heightValGreen = PIC_PIXEL(g_pHeightData, j, i, 1);
             //unsigned char heightValBlue = PIC_PIXEL(g_pHeightData, j, i, 2);
             //renders
-            glColor3f(0.0, heightVal/255,0.0);
+//            glColor3f(0.0, heightVal/255,0.0);
+            
+            glTexCoord2f(1.0, 1.0);
             glVertex3f(j-width/2, i-height/2, heightVal/10 - 120);
             //glColor3f(heightValRed/255, 0.0, 0.0);
+//            glTexCoord2f(0.0, 1.0);
             glVertex3f(j-width/2, (i+1)-height/2, heightVal1/10 - 120);
             //glColor3f(0.0, 0.0, heightValRed/255);
+            glTexCoord2f(0.0, 0.0);
             glVertex3f((j+1)-width/2, i-height/2, heightVal2/10 - 120);
             
-            glColor3f( 0.0, heightVal/255,0.0);
+//            glColor3f( 0.0, heightVal/255,0.0);
+            glTexCoord2f(0.0, 1.0);
             glVertex3f(j-width/2, (i+1)-height/2, heightVal1/10 - 120);
             //            glColor3f(0.0, heightValRed/255, 0.0);
+//            glTexCoord2f(0.0, 0.0);
             glVertex3f((j+1)-width/2, (i+1)-height/2, heightVal3/10 - 120);
             //            glColor3f(0.0, 0.0, heightValRed/255);
+//            glTexCoord2f(1.0, 1.0);
             glVertex3f((j+1)-width/2, i-height/2, heightVal2/10 - 120);
+            
         }
     }
+    glDisable(GL_TEXTURE_2D);
     glEnd();
 }
-
-GLfloat ctrlpoints[4][3] = {
-    { -1.0, -1.0, 1.0}, { -0.5, 1.0, 0.0},
-    {0.5, -1.0, 1.0}, {1.0, 1.0, 0.0}};
 
 void addTextures(){
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
@@ -343,41 +325,75 @@ void addTextures(){
 
 
 vector<double> pointArray;
+//double plotPoints[8000];
+
+//void subdivide(double u0, double u1, double maxlineLength){
+//    umid = (u0+u1)/2;
+//    
+//}
+void calculateSpline(){
+//    glBegin(GL_POINTS);
+//    glColor3b(0.0, 0.0, 0.0);
+//    double u = 0.0;
+    for(int k =0; k< g_iNumOfSplines;k++){
+        for(int PointIteration = 0;PointIteration<g_Splines[k].numControlPoints;PointIteration+=4){
+            for(double u = 0;u<=1;u+=0.00001){
+                if(PointIteration <4){
+                    float x = catmullRom(u, g_Splines[k].points[PointIteration].x,  g_Splines[k].points[PointIteration+1].x,  g_Splines[k].points[PointIteration +2].x,  g_Splines[k].points[PointIteration + 3].x);
+                    float y = catmullRom(u, g_Splines[k].points[PointIteration].y,  g_Splines[k].points[PointIteration +1].y,  g_Splines[k].points[PointIteration+2].y,  g_Splines[k].points[PointIteration+3].y);
+                    float z = catmullRom(u, g_Splines[k].points[PointIteration].z,  g_Splines[k].points[PointIteration+1].z,  g_Splines[k].points[PointIteration+2].z,  g_Splines[k].points[PointIteration+3].z);
+                    pointArray.push_back(x);
+                    pointArray.push_back(y);
+                    pointArray.push_back(z);
+//                plotPoints[pl] = x;
+//                plotPoints[pl + 1] = y;
+//                plotPoints[pl + 2] = z;
+
+                }
+                else {
+                    float x = catmullRom(u, g_Splines[k].points[PointIteration-1].x,  g_Splines[k].points[PointIteration].x,  g_Splines[k].points[PointIteration +1].x,  g_Splines[k].points[PointIteration + 2].x);
+                    float y = catmullRom(u, g_Splines[k].points[PointIteration-1].y,  g_Splines[k].points[PointIteration].y,  g_Splines[k].points[PointIteration+1].y,  g_Splines[k].points[PointIteration+2].y);
+                    float z = catmullRom(u, g_Splines[k].points[PointIteration-1].z,  g_Splines[k].points[PointIteration].z,  g_Splines[k].points[PointIteration+1].z,  g_Splines[k].points[PointIteration+2].z);
+                    pointArray.push_back(x);
+                    pointArray.push_back(y);
+                    pointArray.push_back(z);
+
+                }
+            }
+        }
+    }
+//    glEnd();
+    cout << pointArray.size() << endl;
+}
+
 
 void drawSpline(){
-    double u = 0.0;
-      glColor3b(0.0, 0.0, 0.0);
-    for(int k =0; k< g_iNumOfSplines;k++){
-        u = 0;
-  
-        for(int i = 0;i<=1000;i++){
-            for(int PointIteration = 0;PointIteration<g_Splines[k].numControlPoints;PointIteration+=4){
-                float x = catmullRom(u, g_Splines[k].points[PointIteration].x,  g_Splines[k].points[PointIteration+1].x,  g_Splines[k].points[PointIteration +2].x,  g_Splines[k].points[PointIteration + 3].x);
-                float y = catmullRom(u, g_Splines[k].points[PointIteration].y,  g_Splines[k].points[PointIteration +1].y,  g_Splines[k].points[PointIteration+2].y,  g_Splines[k].points[PointIteration+3].y);
-                float z = catmullRom(u, g_Splines[k].points[PointIteration].z,  g_Splines[k].points[PointIteration+1].z,  g_Splines[k].points[PointIteration+2].z,  g_Splines[k].points[PointIteration+3].z);
-                //glVertex3f(x, y, z-1);
-                pointArray.push_back(x);
-                pointArray.push_back(y);
-                pointArray.push_back(z);
-            }
-            u +=0.001;
-        }
-    }
-
     glBegin(GL_POINTS);
     glColor3d(0.0, 0.0, 0.0);
-    for(int i =0;i<pointArray.size();i+=3){
-        if(i<3){
-            glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
+    unsigned long SiZ = pointArray.size()-6;
+//    cout << SiZ << endl;
+        for(int i =0;i<pointArray.size();i+=3){
+            if(i<3){
+                glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
+                glVertex3f(pointArray.at(i+3), pointArray.at(i+4), pointArray.at(i+5)-1);
+//                glVertex3f(pointArray.at(i+6), pointArray.at(i+6), pointArray.at(i+6)-1);
+            }
+            else if(SiZ > i){
+//            else if (((g_Splines[0].numControlPoints*3)-6) < i){
+//                glVertex3f(plotPoints[i-3], plotPoints[i-2], plotPoints[i-1]-1);
+//                glVertex3f(plotPoints[i], plotPoints[i+1], plotPoints[i+2]);
+//                glVertex3f(plotPoints[i+3], plotPoints[i+4], plotPoints[i+5]-1);
+//                glVertex3f(plotPoints[i+6], plotPoints[i+7], plotPoints[i+8]-1);
+                glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
+                glVertex3f(pointArray.at(i-3), pointArray.at(i-2), pointArray.at(i-1)-1);
+                glVertex3f(pointArray.at(i+3), pointArray.at(i+4), pointArray.at(i+5)-1);
+//                glVertex3f(pointArray.at(i+6), pointArray.at(i+6), pointArray.at(i+6)-1);
+            }
+            else{
+                glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2));
+            }
         }
-        else{
-            glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
-            glVertex3f(pointArray.at(i-3), pointArray.at(i-2), pointArray.at(i-1)-1);
-        }
-    }
-    glEnd();
-
-    
+        glEnd();
 }
 
 
@@ -396,14 +412,16 @@ void display(void){
     glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
     
     addTextures();
-
+//    calculateSpline();
     drawSpline();
     
-//    drawPointsForBackground();
-  //  drawTrianglesForBackground();
+    drawPointsForBackground();
+//    drawTrianglesForBackground();
 
     glutSwapBuffers();
 }
+
+void gluLookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
 
 void reshape(int w, int h){
     
@@ -423,7 +441,7 @@ void Init()
 //    glShadeModel(GL_SMOOTH);
 //    glEnable(GL_LINE_SMOOTH);
 //    glEnable(GL_BLEND);
-    glLineWidth(1.5);
+    glLineWidth(4.5);
 
 
 }
@@ -558,6 +576,8 @@ int main (int argc, char ** argv)
     
     loadSplines(argv[1]);
     glutInit(&argc,argv);
+    calculateSpline();
+
     
     // request double buffer
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
@@ -595,7 +615,6 @@ int main (int argc, char ** argv)
 
     Init();
     textureInit();
-    
     glutReshapeFunc(reshape);
 
 //    glEnable(GL_LINE_SMOOTH);

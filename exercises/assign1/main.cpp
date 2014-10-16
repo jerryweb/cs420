@@ -40,7 +40,7 @@ void texLoad(int i,char *filename){
     Pic* img;
     img = jpeg_read(filename, NULL);
     glBindTexture(GL_TEXTURE_2D, skyTexture[i]);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, img->nx, img->ny, 0, GL_RGBA,GL_UNSIGNED_BYTE, &img->pix[0]);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, img->nx, img->ny, 0, GL_RGB,GL_UNSIGNED_BYTE, &img->pix[0]);
     pic_free(img);
 }
 //
@@ -432,16 +432,13 @@ void addTextures(){
 vector<double> pointArray;
 
 void drawSpline(){
-   // double splinePoints[];
     double u = 0.0;
-    //glBegin(GL_POINTS);
       glColor3b(0.0, 0.0, 0.0);
     for(int k =0; k< g_iNumOfSplines;k++){
         u = 0;
   
         for(int i = 0;i<1000;i++){
             for(int PointIteration = 0;PointIteration<g_Splines[k].numControlPoints;PointIteration+=4){
-//        calculateCatmullRomPoints(0.1,i);
                 float x = catmullRom(u, g_Splines[k].points[PointIteration].x,  g_Splines[k].points[PointIteration+1].x,  g_Splines[k].points[PointIteration +2].x,  g_Splines[k].points[PointIteration + 3].x);
                 float y = catmullRom(u, g_Splines[k].points[PointIteration].y,  g_Splines[k].points[PointIteration +1].y,  g_Splines[k].points[PointIteration+2].y,  g_Splines[k].points[PointIteration+3].y);
                 float z = catmullRom(u, g_Splines[k].points[PointIteration].z,  g_Splines[k].points[PointIteration+1].z,  g_Splines[k].points[PointIteration+2].z,  g_Splines[k].points[PointIteration+3].z);
@@ -453,9 +450,9 @@ void drawSpline(){
             u +=0.001;
         }
     }
-    //glEnd();
+
     glBegin(GL_POINTS);
-    glColor3d(0.0, 0.0, 0.0);
+    glColor3d(0.0, 1.0, 0.0);
     for(int i =0;i<pointArray.size();i+=3){
         if(i<3){
             glVertex3f(pointArray.at(i), pointArray.at(i+1), pointArray.at(i+2)-1);
@@ -486,8 +483,7 @@ void display(void){
     glScaled(g_vLandScale[0], g_vLandScale[1], g_vLandScale[2]);
     
     addTextures();
-//    glLoadIdentity();
-//        drawSpline();
+//    drawSpline();
     
 //    drawPointsForBackground();
   //  drawTrianglesForBackground();

@@ -1,3 +1,6 @@
-1
-/Users/jerrywebb/Documents/cs420/exercises/assign1/splines/star.sp
+3
+/Users/jerrywebb/Documents/cs420/exercises/assign1/splines/leftturn.sp
+/Users/jerrywebb/Documents/cs420/exercises/assign1/splines/straightLine.sp
+/Users/jerrywebb/Documents/cs420/exercises/assign1/splines/cs1.sp
+
 

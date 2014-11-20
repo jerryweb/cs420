@@ -95,7 +95,7 @@ double point[3];
 int num_triangles=0;
 int num_spheres=1;
 int num_lights=0;
-
+bool set = false;
 
 
 void plot_pixel_display(int x,int y,unsigned char r,unsigned char g,unsigned char b);
@@ -113,12 +113,12 @@ Ray createRay(double xPixelPos,double yPixelPos, double t){
     double u,v; // the u and v vectors for the camera position
     double aspect = WIDTH/HEIGHT; // aspect ration W/H
     double radianAngle =  radianConversion(fov);
-    
-    u = -aspect*t + (aspect*t + (aspect*t))*((xPixelPos + 0.5)/WIDTH);
+    //u = -aspect*t + (aspect*t + (aspect*t))*((xPixelPos + 0.5)/WIDTH);
+    u = -aspect*tan(radianAngle/2) + (aspect*tan(radianAngle/2) + aspect*tan(radianAngle/2))*((xPixelPos + 0.5)/WIDTH);
 //    u = -topLeftCornor.position[0] + (topLeftCornor.position[0] - (-topLeftCornor.position[0]))*((xPixelPos + 0.5)/WIDTH);
-    v = -aspect*radianAngle + (aspect*radianAngle  + aspect*radianAngle)*((yPixelPos +0.5)/HEIGHT);
-    
-    cout << u << " " << v << endl;
+    //v = -aspect*radianAngle + (aspect*radianAngle  + aspect*radianAngle)*((yPixelPos +0.5)/HEIGHT);
+    v = -tan(radianAngle/2) + (tan(radianAngle/2) +tan(radianAngle/2))*((yPixelPos +0.5)/HEIGHT);
+    //cout << u << " " << v << endl;
     Ray newRay;
     newRay.direction[0] = u; //{xPixelPos,yPixelPos,zPixelPos};
     newRay.direction[1] = v;
@@ -136,30 +136,28 @@ Ray createRay(double xPixelPos,double yPixelPos, double t){
         newRay.direction[i] = newRay.direction[i]/magnitude;
         newRay.direction[i] = newRay.startPoint[i] + newRay.direction[i];//*t;
     }
-    printf ("magnitude: %lf   ray point:  %lf , %lf , %lf .\n", magnitude, newRay.direction[0], newRay.direction[1], newRay.direction[2]);
+    //printf ("magnitude: %lf   ray point:  %lf , %lf , %lf .\n", magnitude, newRay.direction[0], newRay.direction[1], newRay.direction[2]);
     return newRay;
 }
 
-
-
 //this function calculates p(t) of the ray
-void calculateRay(Ray* ray, double t){
+void calculateRay(Ray* ray, double points[], double t){
     Ray rayInput = *ray;
-    //printf ("ray point:  %lf , %lf , %lf .\n", rayInput.direction[0], rayInput.direction[1], rayInput.direction[2]);
+    Ray rayOutput;
+    //printf ("ray point:  %lf , %lf , %lf .\n", rayInput.direction[0], rayInput.direction[1], rayInput.direction[2])
+    for(int i =0; i<3; i++)
+        points[i] = rayInput.startPoint[i] + rayInput.direction[i]*t;
     
-    for(int i =0; i<3; i++){
-        //rayInput.direction[i] = rayInput.direction[i]/magnitude;
-        rayInput.direction[i] = rayInput.startPoint[i] + rayInput.direction[i]*t;
-    }
     // printf ("ray point:  %lf , %lf , %lf .\n",rayInput.direction[0], rayInput.direction[1], rayInput.direction[2]);
-
+    //return rayOutput;
 }
+
 //this function is calculating a sphere-ray intersection
-void calculateSphere(Ray ray){
+void calculateSphereIntersection(Ray ray,int x, int y){
     
     double implicitSurface = (spheres[1].position[0] - spheres[1].position[0]) + (spheres[1].position[1] - spheres[1].position[1]) +(spheres[1].position[2] - spheres[1].position[2]) - (spheres[1].radius*spheres[1].radius);
     //t0 and t1
-    double a,b,c, t0, t1 = 0;
+    double a,b,c, t0one, t0two, ScalarEq0, ScalarEq1 = 0;
     
     //This calculates a, b, and c for the equation at^2 + bt + c = 0
         a = ray.direction[0]*ray.direction[0] + ray.direction[1]*ray.direction[1] + ray.direction[2]*ray.direction[2];
@@ -169,55 +167,72 @@ void calculateSphere(Ray ray){
         c = (ray.startPoint[0] - spheres[1].position[0])*(ray.startPoint[0] - spheres[1].position[0]) + (ray.startPoint[1] -  spheres[1].position[1])*(ray.startPoint[1] -  spheres[1].position[1])
         + (ray.startPoint[2] -  spheres[1].position[2])*(ray.startPoint[2] -  spheres[1].position[2]) - (spheres[1].radius * spheres[1].radius);
     
+    int t = 0;
+    ScalarEq0 = a*t*t + b*t + c;
+    t = 1;
+    ScalarEq1 = a*t*t + b*t + c;
+//    cout << ScalarEq0 << "   " << ScalarEq1 << endl;
+    cout << a << " "  << b << " " << c << endl;
     //quadratic function the first part checks to see if b^2 - 4c is negative
     if((b*b - 4*c) < 0)
-        cout << "b^2 - 4c is negative!!!" << endl;
+        cout << "discriminant is negative!!!" << endl;
     else {
-        t0 = (-b + sqrt(b*b - 4*c))/2;
-        t1 = (-b - sqrt(b*b - 4*c))/2;
-        if((t0 >0) && (t1 > 0))
-            cout << "min(" << t0 << "," << t1 << ")" << endl;
-    };
+//        t0one = (-b + sqrt(b*b - 4*(c-spheres[1].radius*spheres[1].radius)*a))/(2*a);
+//        t0two = (-b - sqrt(b*b - 4*(c-spheres[1].radius*spheres[1].radius)*a))/(2*a);
+        t0one = (-b + sqrt(b*b - 4*c))/(2);
+        t0two = (-b - sqrt(b*b - 4*c))/(2);
+        cout << "min(" << t0one << "," << t0two << ")" << endl;
+        //if((t0one >0) && (t0two > 0)){
+        if(t0one < 0){
+//            cout << ScalarEq0 << "," << ScalarEq1  << endl;
+            cout << "missed image" << endl;
+            
+        }
+        else if(t0one > 0){
+            cout << "hit image" << endl;
+            set = true;
+        }
+        else
+            cout << "hit the tangent of image" << endl;
+    }
+        //cout << implicitSurface << endl;
     
-    //cout << implicitSurface << endl;
-    cout << a << b << c << endl;
 }
 
-
+void calculateTriangleIntersection(Ray ray){
+    
+}
 //MODIFY THIS FUNCTION
 void draw_scene()
 {
   unsigned int x,y;
-    int halfWIDTH = WIDTH/2;
-    int halfHEIGHT = HEIGHT/2;
+    double rayPoints[3];
     //calculateGridCornors();
     Ray monkeyRay;
+//    monkeyRay = createRay(halfWIDTH, halfHEIGHT, 1);
+//    for(int i = 0; i<10; i++){
+//        calculateRay(&monkeyRay, rayPoints, i);
+//        cout << rayPoints[0] << " " << rayPoints[1] << "  " << rayPoints[2] << endl;
+//    }
     //simple output
-    int nX = 0;
-    int nY = 0;
-  for(x=0; x<WIDTH; x++)
-  {
-//    nX = x;
-//    if(x < halfWIDTH)
-//        nX = -x;
+    for(x=0; x<WIDTH; x++){
 
     glPointSize(2.0);
     glBegin(GL_POINTS);
     for(y=0;y < HEIGHT;y++)
     {
-//        nY = y;
-//        if(y < halfHEIGHT)
-//            nY = -y;
-        //plot_pixel(x,y,x%256,y%256,(x+y)%256);
-        monkeyRay = createRay(x, y, 2);
+        monkeyRay = createRay(x, y, 1);
+        calculateSphereIntersection(monkeyRay,x,y);
+        if(set){
+            plot_pixel(x,y,x%256,y%256,(x+y)%256);
+            set = false;
+        }
+        
     }
     
     glEnd();
     glFlush();
   }
-    
-    calculateRay(&monkeyRay, 10);
-   // calculateSphere(monkeyRay);
   printf("We're done here!\n");
     fflush(stdout);
 }
@@ -226,7 +241,7 @@ void draw_scene()
 double radianConversion(double angle){
     double result;
     result = tan (angle*PI/180);
-    printf ("The tangent of %lf degrees is %lf.\n", angle, result );
+    //printf ("The tangent of %lf degrees is %lf.\n", angle, result );
     return result;
 }
 

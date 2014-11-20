@@ -107,40 +107,51 @@ double radianConversion(double angle);
 void vectorNomalization(double vector[]);
 
 
-//This function is used to genrate and calculate the original rays
-Ray createRay(double xPixelPos,double yPixelPos, double zPixelPos, double t){
-
+//This function is used to genrate and calculate the original rays for each pixel in the screen
+Ray createRay(double xPixelPos,double yPixelPos, double t){
+    double w[3];
+    double u,v; // the u and v vectors for the camera position
+    double aspect = WIDTH/HEIGHT; // aspect ration W/H
+    double radianAngle =  radianConversion(fov);
+    
+    u = -aspect*t + (aspect*t + (aspect*t))*((xPixelPos + 0.5)/WIDTH);
+//    u = -topLeftCornor.position[0] + (topLeftCornor.position[0] - (-topLeftCornor.position[0]))*((xPixelPos + 0.5)/WIDTH);
+    v = -aspect*radianAngle + (aspect*radianAngle  + aspect*radianAngle)*((yPixelPos +0.5)/HEIGHT);
+    
+    cout << u << " " << v << endl;
     Ray newRay;
-    newRay.direction[0] = xPixelPos; //{xPixelPos,yPixelPos,zPixelPos};
-    newRay.direction[1] = yPixelPos;
-    newRay.direction[2] = zPixelPos;
+    newRay.direction[0] = u; //{xPixelPos,yPixelPos,zPixelPos};
+    newRay.direction[1] = v;
+    newRay.direction[2] = -1;
     newRay.startPoint[0] = 0; // x position of the origin
     newRay.startPoint[1] = 0; // y position of the origin
     newRay.startPoint[2] = 0; // z position of the origin
     //this normalizes the vector to get the direction
+    for(int i =0; i<3; i++){
+        w[i] = (newRay.startPoint[i] - newRay.direction[i])/((newRay.startPoint[i] - newRay.direction[i]) * (newRay.startPoint[i] -newRay.direction[i]));
+    }
+    
     double magnitude = sqrt(newRay.direction[0]*newRay.direction[0] + newRay.direction[1]*newRay.direction[1] + newRay.direction[2]*newRay.direction[2]);
     for(int i =0; i<2; i++){
         newRay.direction[i] = newRay.direction[i]/magnitude;
         newRay.direction[i] = newRay.startPoint[i] + newRay.direction[i];//*t;
     }
-//    int x = ray.direction[0];
-//    int y = ray.direction[1];
-//    
-    //plot_pixel(x,y,x%256,y%256,(x+y)%256);
-    // printf ("magnitude: %lf   ray point:  %lf , %lf , %lf .\n", magnitude, ray.direction[0], ray.direction[1], ray.direction[2]);
+    printf ("magnitude: %lf   ray point:  %lf , %lf , %lf .\n", magnitude, newRay.direction[0], newRay.direction[1], newRay.direction[2]);
     return newRay;
 }
 
-//this function calculates p(t) of the ray
-void calculateRay(Ray *ray, double t){
-    Ray rayInput = *ray;
-    double magnitude = sqrt(testRay.direction[0]*testRay.direction[0] + testRay.direction[1]*testRay.direction[1] + testRay.direction[2]*testRay.direction[2]);
 
-    for(int i =0; i<2; i++){
-        rayInput.direction[i] = rayInput.direction[i]/magnitude;
+
+//this function calculates p(t) of the ray
+void calculateRay(Ray* ray, double t){
+    Ray rayInput = *ray;
+    //printf ("ray point:  %lf , %lf , %lf .\n", rayInput.direction[0], rayInput.direction[1], rayInput.direction[2]);
+    
+    for(int i =0; i<3; i++){
+        //rayInput.direction[i] = rayInput.direction[i]/magnitude;
         rayInput.direction[i] = rayInput.startPoint[i] + rayInput.direction[i]*t;
     }
-     printf ("magnitude: %lf   ray point:  %lf , %lf , %lf .\n", magnitude, rayInput.direction[0], rayInput.direction[1], rayInput.direction[2]);
+    // printf ("ray point:  %lf , %lf , %lf .\n",rayInput.direction[0], rayInput.direction[1], rayInput.direction[2]);
 
 }
 //this function is calculating a sphere-ray intersection
@@ -180,8 +191,8 @@ void draw_scene()
     int halfWIDTH = WIDTH/2;
     int halfHEIGHT = HEIGHT/2;
     //calculateGridCornors();
-    
-  //simple output
+    Ray monkeyRay;
+    //simple output
     int nX = 0;
     int nY = 0;
   for(x=0; x<WIDTH; x++)
@@ -197,16 +208,16 @@ void draw_scene()
 //        nY = y;
 //        if(y < halfHEIGHT)
 //            nY = -y;
-        plot_pixel(x,y,x%256,y%256,(x+y)%256);
-        
-        
+        //plot_pixel(x,y,x%256,y%256,(x+y)%256);
+        monkeyRay = createRay(x, y, 2);
     }
     
     glEnd();
     glFlush();
   }
-    Ray monkeyRay = createRay(2,3, -1, 1);
-    calculateSphere(monkeyRay);
+    
+    calculateRay(&monkeyRay, 10);
+   // calculateSphere(monkeyRay);
   printf("We're done here!\n");
     fflush(stdout);
 }

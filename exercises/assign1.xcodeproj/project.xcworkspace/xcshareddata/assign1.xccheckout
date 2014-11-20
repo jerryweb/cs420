@@ -11,17 +11,17 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>A8DC3A818541E86F410EF331B0FA901AE9D1F481</key>
-		<string>ssh://github.com/jerryweb/cs420.git</string>
+		<string>https://github.com/jerryweb/cs420</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>ex1/assign1.xcodeproj/project.xcworkspace</string>
+	<string>exercises/assign1.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>A8DC3A818541E86F410EF331B0FA901AE9D1F481</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/jerryweb/cs420.git</string>
+	<string>https://github.com/jerryweb/cs420</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>

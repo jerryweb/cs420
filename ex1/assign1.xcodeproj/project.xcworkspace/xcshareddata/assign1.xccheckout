@@ -10,29 +10,29 @@
 	<string>assign1</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>2FDDF7FE-B87C-4394-918F-1C1080263110</key>
-		<string>ssh://github.com/jerryweb/cs420.git</string>
+		<key>A8DC3A818541E86F410EF331B0FA901AE9D1F481</key>
+		<string>https://github.com/jerryweb/cs420</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>ex1/assign1.xcodeproj/project.xcworkspace</string>
+	<string>ex1/assign1.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>2FDDF7FE-B87C-4394-918F-1C1080263110</key>
+		<key>A8DC3A818541E86F410EF331B0FA901AE9D1F481</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/jerryweb/cs420.git</string>
+	<string>https://github.com/jerryweb/cs420</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>2FDDF7FE-B87C-4394-918F-1C1080263110</string>
+	<string>A8DC3A818541E86F410EF331B0FA901AE9D1F481</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>2FDDF7FE-B87C-4394-918F-1C1080263110</string>
+			<string>A8DC3A818541E86F410EF331B0FA901AE9D1F481</string>
 			<key>IDESourceControlWCCName</key>
 			<string>cs420</string>
 		</dict>

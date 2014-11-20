@@ -90,6 +90,8 @@ struct spline {
    struct point *points;
 };
 
+
+//sqrt of (x^2 + y^2 + z^2)
 /* the spline array */
 struct spline *g_Splines;
 
@@ -187,7 +189,18 @@ double tangentToCurve(float u, float v0, float v1, float v2, float v3){
     return point;
 }
 
+double N[3] = {0,0,0};
+double B[3] = {0,0,0};
 
+double N0CrossProduct(float u, float v0, float v1, float v2){
+    double cp = (v1*0 - v2*0) - (v2*0 -v0*1) + (v0*0- v1*1);
+    return cp;
+}
+
+double CalculateCrossProduct(float u0, float u1, float u2, float v0, float v1, float v2){
+    double cp = (u1*v2 - u2*v1) - (u2*v0 -u0*v2) + (u0*v1- u1*v0);
+    return cp;
+}
 void drawPointsForBackground(){
     
     int height, width;
@@ -255,6 +268,7 @@ void drawTrianglesForBackground(){
     glEnd();
 }
 
+//this adds the sky and ground textures to the world
 void addTextures(){
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glEnable(GL_TEXTURE_2D);
@@ -296,7 +310,8 @@ void addTextures(){
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     
     face(4,5,6,7);
-    //
+    
+    //loads the Ground texture
     glBindTexture(GL_TEXTURE_2D, skyTexture[4]);
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
@@ -315,12 +330,14 @@ vector<double> pointArray;
 //}
 
 //this is used to calculate each spline using a set of given control points
+
+
 void drawSpline(){
     
     glBegin(GL_POINTS);
     glColor3b(0.0, 0.0, 0.0);
     double previousPoints[3];
-    
+    double T[3], TPrevious[3];
      /*derivative of the spline function using u*/
     
     for(int k =0; k< g_iNumOfSplines;k++){
@@ -347,39 +364,44 @@ void drawSpline(){
             }
 
             else if(k > 0 && PointIteration <1){
-                                controlMatrix[0][0] = previousPoints[0];
-                                controlMatrix[0][1] = previousPoints[1];
-                                controlMatrix[0][2] = previousPoints[2];
+                controlMatrix[0][0] = previousPoints[0];
+                controlMatrix[0][1] = previousPoints[1];
+                controlMatrix[0][2] = previousPoints[2];
                 
-                                controlMatrix[1][0] = g_Splines[k].points[PointIteration].x;
-                                controlMatrix[1][1] = g_Splines[k].points[PointIteration].y;
-                                controlMatrix[1][2] = g_Splines[k].points[PointIteration].z;
+                controlMatrix[1][0] = g_Splines[k].points[PointIteration].x;
+                controlMatrix[1][1] = g_Splines[k].points[PointIteration].y;
+                controlMatrix[1][2] = g_Splines[k].points[PointIteration].z;
                 
-                                controlMatrix[2][0] = g_Splines[k].points[PointIteration +1].x;
-                                controlMatrix[2][1] = g_Splines[k].points[PointIteration +1].y;
-                                controlMatrix[2][2] = g_Splines[k].points[PointIteration +1].z;
+                controlMatrix[2][0] = g_Splines[k].points[PointIteration +1].x;
+                controlMatrix[2][1] = g_Splines[k].points[PointIteration +1].y;
+                controlMatrix[2][2] = g_Splines[k].points[PointIteration +1].z;
                 
-                                controlMatrix[3][0] = g_Splines[k].points[PointIteration +2].x;
-                                controlMatrix[3][1] = g_Splines[k].points[PointIteration +2].y;
-                                controlMatrix[3][2] = g_Splines[k].points[PointIteration +2].z;
+                controlMatrix[3][0] = g_Splines[k].points[PointIteration +2].x;
+                controlMatrix[3][1] = g_Splines[k].points[PointIteration +2].y;
+                controlMatrix[3][2] = g_Splines[k].points[PointIteration +2].z;
             }
 
             else{
-                                controlMatrix[0][0] = g_Splines[k].points[PointIteration -1].x;
-                                controlMatrix[0][1] = g_Splines[k].points[PointIteration -1].y;
-                                controlMatrix[0][2] = g_Splines[k].points[PointIteration -1].z;
+
+                T[0] = controlMatrix[1][0] - controlMatrix[0][0];
+                T[1] = controlMatrix[1][1] - controlMatrix[0][1];
+                T[2] = controlMatrix[1][2] - controlMatrix[0][2];
+
+                controlMatrix[0][0] = g_Splines[k].points[PointIteration -1].x;
+                controlMatrix[0][1] = g_Splines[k].points[PointIteration -1].y;
+                controlMatrix[0][2] = g_Splines[k].points[PointIteration -1].z;
                 
-                                controlMatrix[1][0] = g_Splines[k].points[PointIteration].x;
-                                controlMatrix[1][1] = g_Splines[k].points[PointIteration].y;
-                                controlMatrix[1][2] = g_Splines[k].points[PointIteration].z;
+                controlMatrix[1][0] = g_Splines[k].points[PointIteration].x;
+                controlMatrix[1][1] = g_Splines[k].points[PointIteration].y;
+                controlMatrix[1][2] = g_Splines[k].points[PointIteration].z;
                 
-                                controlMatrix[2][0] = g_Splines[k].points[PointIteration +1].x;
-                                controlMatrix[2][1] = g_Splines[k].points[PointIteration +1].y;
-                                controlMatrix[2][2] = g_Splines[k].points[PointIteration +1].z;
+                controlMatrix[2][0] = g_Splines[k].points[PointIteration +1].x;
+                controlMatrix[2][1] = g_Splines[k].points[PointIteration +1].y;
+                controlMatrix[2][2] = g_Splines[k].points[PointIteration +1].z;
                 
-                                controlMatrix[3][0] = g_Splines[k].points[PointIteration +2].x;
-                                controlMatrix[3][1] = g_Splines[k].points[PointIteration +2].y;
-                                controlMatrix[3][2] = g_Splines[k].points[PointIteration +2].z;
+                controlMatrix[3][0] = g_Splines[k].points[PointIteration +2].x;
+                controlMatrix[3][1] = g_Splines[k].points[PointIteration +2].y;
+                controlMatrix[3][2] = g_Splines[k].points[PointIteration +2].z;
 
             }
             
@@ -399,9 +421,16 @@ void drawSpline(){
             resultMatrix[3][1] = basisMatrix[3][0]*controlMatrix[0][1] + basisMatrix[3][1]*controlMatrix[1][1] + basisMatrix[3][2]*controlMatrix[2][1] + basisMatrix[3][3]*controlMatrix[3][1];
             resultMatrix[3][2] = basisMatrix[3][0]*controlMatrix[0][2] + basisMatrix[3][1]*controlMatrix[1][2] + basisMatrix[3][2]*controlMatrix[2][2] + basisMatrix[3][3]*controlMatrix[3][2];
             
-            
-            
-            
+            if((PointIteration ==0) && (k ==0)){
+                float tx = tangentToCurve(0, resultMatrix[0][0], resultMatrix[1][0], resultMatrix[2][0], resultMatrix[3][0]);
+                float ty = tangentToCurve(0, resultMatrix[0][1], resultMatrix[1][1], resultMatrix[2][1], resultMatrix[3][1]);
+                float tz = tangentToCurve(0, resultMatrix[0][2], resultMatrix[1][2], resultMatrix[2][2], resultMatrix[3][2]);
+                T[0] = tx;
+                T[1] = ty;
+                T[2] = tz;
+                N[0] = N0CrossProduct(0, tx, ty, tz);
+//                CalculateCrossProduct(tx, ty, tz, N[0], , )
+            }
             
             for(double u = 0;u<=1;u+=0.001){
                 float x = catmullRom(u, resultMatrix[0][0], resultMatrix[1][0], resultMatrix[2][0], resultMatrix[3][0]);
@@ -412,14 +441,25 @@ void drawSpline(){
                 float ty = tangentToCurve(u, resultMatrix[0][1], resultMatrix[1][1], resultMatrix[2][1], resultMatrix[3][1]);
                 float tz = tangentToCurve(u, resultMatrix[0][2], resultMatrix[1][2], resultMatrix[2][2], resultMatrix[3][2]);
                 
-//                cout << tx << "   " << ty << "   " << tz << endl;
-                
+                T[0] = tx;
+                T[1] = ty;
+                T[2] = tz;
+                CalculateCrossProduct(T[0], T[1], T[2], N[0], N[1], N[2]);
+  
                 glVertex3f(x, y, z-1);
+//                glMatrixMode(GL_MODELVIEW);
+//                glLoadIdentity();
+//                gluLookAt(x, y, z, x + tx, y + ty, z + tz, GLdouble upX, <#GLdouble upY#>, <#GLdouble upZ#>);
+                
+                TPrevious[0] = T[0];
+                TPrevious[1] = T[1];
+                TPrevious[2] = T[2];
                 if(PointIteration == g_Splines[k].numControlPoints-3){
                     previousPoints[0] = controlMatrix[3][0];
                     previousPoints[1] = controlMatrix[3][1];
                     previousPoints[2] = controlMatrix[3][2];
                 }
+                
             }
         }
     }
@@ -447,6 +487,8 @@ void display(void){
     addTextures();
 
     drawSpline();
+    
+
     
 //    drawPointsForBackground();
 //    drawTrianglesForBackground();

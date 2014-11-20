@@ -30,8 +30,8 @@ char *filename=0;
 int mode=MODE_DISPLAY;
 
 //you may want to make these smaller for debugging purposes
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 //the field of view of the camera
 #define fov 60.0
@@ -39,10 +39,19 @@ int mode=MODE_DISPLAY;
 
 
 unsigned char buffer[HEIGHT][WIDTH][3];
-pair<double, double> pixLocationArray[WIDTH][HEIGHT];
-tuple<double, double, double> pixVectorArray[WIDTH][HEIGHT];
-double zN = 0; //This is zNear
+double pixLocationArray[WIDTH][HEIGHT][2];
+//tuple<double, double, double> camToPixVectorArray[WIDTH][HEIGHT];
+double rayDirectionArray[WIDTH][HEIGHT][3];//camera To Pixel Vector
+double zN = -1; //This is zNear
 double xLeft, xRight, yBottom, yTop, xCenter, yCenter = 0;
+double rayArray[WIDTH][HEIGHT];
+  double origin = 0.0;
+
+struct Ray
+{
+    double origin[3];
+    double direction[3];
+};
 struct Vertex
 {
   double position[3];
@@ -92,6 +101,7 @@ double radinConversion(double angle){
     double result = (angle/2)*(PI/180);
     return result;
 }
+//calculates the corners of the 3 scene
 void calculateSceneDeminsions(){
     double aspect = WIDTH/HEIGHT;
     xLeft = -aspect*tan(radinConversion(fov));
@@ -101,9 +111,9 @@ void calculateSceneDeminsions(){
     
     cout << "left x: " << xLeft << " right x: " << xRight << endl;
     cout << "bottom y: " << yBottom << " top y: " << yTop << endl;
-    
-    
+
 }
+//creates a grid of pixels
 void createPixelGrid(){
     calculateSceneDeminsions();
     double pixelCenterX, pixelCenterY, magnitude, xNormalVec, yNormalVec, zNormalVec, pixelWidth, pixelHeight =0;
@@ -113,23 +123,69 @@ void createPixelGrid(){
 
     for(int i =0;i<WIDTH;i++){
         for (int j = 0; j<HEIGHT; j++) {
-            xCenter = (i * pixelWidth) + (pixelWidth/2);
-            yCenter = (j * pixelHeight) + (pixelHeight/2);
             
-            pixelCenterX = xLeft + pixelCenterX;
-            pixelCenterY = yBottom+ pixelCenterY;
- 
-            pixLocationArray[i][j] = make_pair(pixelCenterX, pixelCenterY);
+            pixelCenterX = xLeft + (i * pixelWidth) + (pixelWidth/2);
+            pixelCenterY = yBottom+ (j * pixelHeight) + (pixelHeight/2);
+            //cout << " pixel x center: " << pixelCenterX  << " pixel y center: " << pixelCenterY  << endl;
+
+            pixLocationArray[i][j][0] = pixelCenterX;
+            pixLocationArray[i][j][1] = pixelCenterY;
             //cout << pixLocationArray[i][j].first << "," << pixLocationArray[i][j].second << endl; // << " | " << pixVectorArray[x]
             magnitude = sqrt(pixelCenterX * pixelCenterX + pixelCenterY * pixelCenterY + zN*zN);
             
             xNormalVec = pixelCenterX/magnitude;
             yNormalVec = pixelCenterY/magnitude;
             zNormalVec = zN/magnitude;
-            pixVectorArray[i][j] = make_tuple(xNormalVec,yNormalVec,zNormalVec);
+            //pixVector
+            //rayDirectionArray[i][j] = make_tuple(xNormalVec,yNormalVec,zNormalVec);
+            rayDirectionArray[i][j][0] = xNormalVec;
+            rayDirectionArray[i][j][1] = yNormalVec;
+            rayDirectionArray[i][j][2] = zNormalVec;
+            //cout << rayDirectionArray[i][j][0] << endl;
         }
     }
 }
+
+//p(t) funciton for the ray t is the t value, and the x and y are the x and y pixel positions on the screen
+void generateRays(double t,int xPixel,int yPixel){
+    double p[3];
+  
+    cout << rayDirectionArray[xPixel][yPixel][0] << endl;
+    for(int k = 0; k<3; k++){
+        p[k] = origin + rayDirectionArray[xPixel][yPixel][k]*t;
+        cout << p[k] << "   ";
+    }
+    cout << endl;
+}
+
+
+void calculateSphereIntersection(int x, int y){
+    
+    double sphereCenter[3] = {spheres[0].position[0], spheres[0].position[1], spheres[0].position[2]};
+//    cout << sphereCenter[2] << endl;
+    double a,b,c,t0,t1 = 0.0;
+
+    a = (rayDirectionArray[x][y][0] * rayDirectionArray[x][y][0]) + (rayDirectionArray[x][y][1]*rayDirectionArray[x][y][1]) + (rayDirectionArray[x][y][2]*rayDirectionArray[x][y][2]);
+   
+    b = 2*(rayDirectionArray[x][y][0]*(origin + spheres[0].position[0]) + rayDirectionArray[x][y][1]*(origin + spheres[0].position[1]) + rayDirectionArray[x][y][2]*(origin + spheres[0].position[2]));
+    
+    c = (origin + spheres[0].position[0])*(origin + spheres[0].position[0]) + (origin + spheres[0].position[1])*(origin + spheres[0].position[1]) + (origin + spheres[0].position[2])*(origin + spheres[0].position[2]) - (spheres[0].radius*spheres[0].radius);
+//    cout << a << " " << b << "   "  << c << endl;
+    if((b*b - 4*c) >0){
+        t0 = -b + sqrt((b*b - 4*c)/2);
+        t1 = -b - sqrt((b*b - 4*c)/2);
+        //cout  << t0 << "    " << t1 << endl;
+        if(t0 > 0)
+            cout << "sphere hit!" << endl;
+        else if(t0 == 0)
+            cout << "sphere grazed" << endl;
+        else
+            cout << "sphere missed" << endl;
+    }
+//    else
+        //cout << "The discriminant is negative!!! :(" << endl;
+}
+
 
 //MODIFY THIS FUNCTION
 void draw_scene()
@@ -137,6 +193,7 @@ void draw_scene()
   unsigned int x,y;
     double xPos, yPos = 0;
     createPixelGrid();
+    //generateRays(1, 319,239);
     
     
   //simple output
@@ -150,6 +207,7 @@ void draw_scene()
 //        cout << radAngle << endl;
 //        xPos = (HEIGHT/WIDTH)*tan(radAngle/2);
 //        yPos = tan(radAngle/2);
+        calculateSphereIntersection(x,y);
         plot_pixel(x,y,x%256,y%256,(x+y)%256);
     }
     glEnd();

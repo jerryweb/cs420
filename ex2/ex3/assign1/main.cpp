@@ -30,8 +30,8 @@ char *filename=0;
 int mode=MODE_DISPLAY;
 
 //you may want to make these smaller for debugging purposes
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 320
+#define HEIGHT 240
 
 //the field of view of the camera
 #define fov 60.0
@@ -104,10 +104,11 @@ double radinConversion(double angle){
 //calculates the corners of the 3 scene
 void calculateSceneDeminsions(){
     double aspect = WIDTH/HEIGHT;
-    xLeft = -aspect*tan(radinConversion(fov));
-    xRight = aspect*tan(radinConversion(fov));
-    yBottom = -tan(radinConversion(fov));
-    yTop = tan(radinConversion(fov));
+    //xLeft = -aspect*tan(radinConversion(fov));
+    xLeft = -aspect*tan((fov)*(PI/180));
+    xRight = aspect*tan((fov)*(PI/180));
+    yBottom = -tan((fov)*(PI/180));
+    yTop = tan((fov)*(PI/180));
     
     cout << "left x: " << xLeft << " right x: " << xRight << endl;
     cout << "bottom y: " << yBottom << " top y: " << yTop << endl;
@@ -172,15 +173,19 @@ void calculateSphereIntersection(int x, int y){
     c = (origin + spheres[0].position[0])*(origin + spheres[0].position[0]) + (origin + spheres[0].position[1])*(origin + spheres[0].position[1]) + (origin + spheres[0].position[2])*(origin + spheres[0].position[2]) - (spheres[0].radius*spheres[0].radius);
 //    cout << a << " " << b << "   "  << c << endl;
     if((b*b - 4*c) >0){
-        t0 = -b + sqrt((b*b - 4*c)/2);
-        t1 = -b - sqrt((b*b - 4*c)/2);
+        t0 = c;
+        t1 = -b + sqrt((b*b - 4*c)/2);
         //cout  << t0 << "    " << t1 << endl;
-        if(t0 > 0)
-            cout << "sphere hit!" << endl;
-        else if(t0 == 0)
-            cout << "sphere grazed" << endl;
-        else
-            cout << "sphere missed" << endl;
+        if(t1 < t0){
+//            cout << "sphere hit!" << endl;
+            plot_pixel(x,y,x%256,y%256,(x+y)%256);
+        }
+        else if(t1 == t0){
+//            cout << "sphere grazed" << endl;
+            plot_pixel(x,y,x%256,y%256,(x+y)%256);
+        }
+//        else
+//            cout << "sphere missed" << endl;
     }
 //    else
         //cout << "The discriminant is negative!!! :(" << endl;
@@ -208,7 +213,7 @@ void draw_scene()
 //        xPos = (HEIGHT/WIDTH)*tan(radAngle/2);
 //        yPos = tan(radAngle/2);
         calculateSphereIntersection(x,y);
-        plot_pixel(x,y,x%256,y%256,(x+y)%256);
+        
     }
     glEnd();
     glFlush();

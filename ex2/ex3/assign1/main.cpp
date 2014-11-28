@@ -105,13 +105,13 @@ double radinConversion(double angle){
 void calculateSceneDeminsions(){
     double aspect = WIDTH/HEIGHT;
     //xLeft = -aspect*tan(radinConversion(fov));
-    xLeft = -aspect*tan((fov)*(PI/180));
-    xRight = aspect*tan((fov)*(PI/180));
-    yBottom = -tan((fov)*(PI/180));
-    yTop = tan((fov)*(PI/180));
+    xLeft = -aspect*tan((fov/2 )*(PI/180));
+    xRight = aspect*tan((fov/2 )*(PI/180));
+    yBottom = -tan((fov/2 )*(PI/180));
+    yTop = tan((fov/2 )*(PI/180));
     
-    cout << "left x: " << xLeft << " right x: " << xRight << endl;
-    cout << "bottom y: " << yBottom << " top y: " << yTop << endl;
+//    cout << "left x: " << xLeft << " right x: " << xRight << endl;
+//    cout << "bottom y: " << yBottom << " top y: " << yTop << endl;
 
 }
 //creates a grid of pixels
@@ -120,7 +120,7 @@ void createPixelGrid(){
     double pixelCenterX, pixelCenterY, magnitude, xNormalVec, yNormalVec, zNormalVec, pixelWidth, pixelHeight =0;
      pixelWidth = (abs(xLeft) + abs(xRight))/WIDTH;
      pixelHeight = (abs(yBottom) + abs(yTop))/HEIGHT;
-    cout << " pixel width: " << pixelWidth << " pixel height: " << pixelHeight << endl;
+//    cout << " pixel width: " << pixelWidth << " pixel height: " << pixelHeight << endl;
 
     for(int i =0;i<WIDTH;i++){
         for (int j = 0; j<HEIGHT; j++) {
@@ -159,11 +159,9 @@ void generateRays(double t,int xPixel,int yPixel){
     cout << endl;
 }
 
-
+//This will check to see if any of the rays intersects with the sphere in the scene
 void calculateSphereIntersection(int x, int y){
-    
-    double sphereCenter[3] = {spheres[0].position[0], spheres[0].position[1], spheres[0].position[2]};
-//    cout << sphereCenter[2] << endl;
+
     double a,b,c,t0,t1 = 0.0;
 
     a = (rayDirectionArray[x][y][0] * rayDirectionArray[x][y][0]) + (rayDirectionArray[x][y][1]*rayDirectionArray[x][y][1]) + (rayDirectionArray[x][y][2]*rayDirectionArray[x][y][2]);
@@ -175,20 +173,88 @@ void calculateSphereIntersection(int x, int y){
     if((b*b - 4*c) >0){
         t0 = c;
         t1 = -b + sqrt((b*b - 4*c)/2);
-        //cout  << t0 << "    " << t1 << endl;
         if(t1 < t0){
-//            cout << "sphere hit!" << endl;
             plot_pixel(x,y,x%256,y%256,(x+y)%256);
         }
         else if(t1 == t0){
-//            cout << "sphere grazed" << endl;
             plot_pixel(x,y,x%256,y%256,(x+y)%256);
         }
-//        else
-//            cout << "sphere missed" << endl;
     }
-//    else
-        //cout << "The discriminant is negative!!! :(" << endl;
+
+}
+
+void calculateTriangleIntersection(int x, int y)
+{
+    double t =0;
+    double lengthX,lengthY,lengthZ, area, Alpha, Beta, Gamma = 0; // those are the soon to be computed normal vector points for the plane in which the triangle is located
+    double A[3], B[3], C[3], tempV1[3], tempV2[3], Normal[3], Area[3], planeVector[3];
+        for(int i = 0;i<3;i++)
+            A[i] = triangles[0].v[0].position[i];
+        for(int j = 0;j<3;j++)
+            B[j] = triangles[0].v[1].position[j];
+        for(int k =0; k<3;k++)
+            C[k] = triangles[0].v[2].position[k];
+        for(int l = 0; l<3; l++){
+            tempV1[l] = (B[l] - A[l]);
+            tempV2[l] = (C[l] - A[l]);
+        }
+    double magnitudeA = sqrt(A[0]*A[0] + A[1]*A[1] + A[2]*A[2]);
+    double magnitudeB = sqrt(B[0]*B[0] + B[1]*B[1] + B[2]*B[2]);
+    double magnitudeC = sqrt(C[0]*C[0] + C[1]*C[1] + C[2]*C[2]);
+
+    for(int m = 0; m<3; m++){
+        planeVector[m] = ((A[m]/magnitudeA) - (B[m]/magnitudeB));
+//        planeVector[m] = (A[m] - B[m]);
+//        cout << planeVector[m] <<endl;
+    }
+//    double magPV = sqrt(planeVector[0]*planeVector[0] + planeVector[1]*planeVector[1] + planeVector[2]*planeVector[2]);
+//    double normalPV[3] = {planeVector[0]/magPV, planeVector[1]/magPV, planeVector[2]/magPV};
+//    cout << normalPV[2] << endl;
+    
+    
+    //Compute the cross product
+//   Area[0] = abs(tempV1[1]*tempV2[2] - tempV1[2]*tempV2[1])/2;
+//   Area[1] = abs(tempV1[2]*tempV2[0] - tempV1[0]*tempV2[2])/2;
+//   Area[2] = abs(tempV1[0]*tempV2[1] - tempV1[1]*tempV2[0])/2;
+//    
+     Normal[0] = (tempV1[1]*tempV2[2]) - (tempV1[2]*tempV2[1]);
+     Normal[1] = (tempV1[2]*tempV2[0]) - (tempV1[0]*tempV2[2]);
+     Normal[2] = (tempV1[0]*tempV2[1]) - (tempV1[1]*tempV2[0]);
+    
+    double mag = sqrt(Normal[0]*Normal[0] + Normal[1]*Normal[1] + Normal[2]*Normal[2]);
+    double firstVecMagnitude = sqrt(tempV1[0]*tempV1[0] + tempV1[1]*tempV1[1] + tempV1[2]*tempV1[2]);
+    double secondVecMagnitude = sqrt(tempV2[0]*tempV2[0] + tempV2[1]*tempV2[1] + tempV2[2]*tempV2[2]);
+
+    if(mag > 0){
+        for(int u = 0;u<3; u++)
+            Normal[u] = Normal[u]/mag;
+//        cout << A[0] << " " << A[1] << " " << A[2] << endl;
+//        cout << B[0] << " " << B[1] << " " << B[2] << endl;
+//        cout << tempV1[0] << " " << tempV1[1] << " " << tempV1[2] << endl;
+//        cout << C[0] << " " << C[1] << " " << C[2] << endl;
+//        cout << tempV2[0] << " " << tempV2[1] << " " << tempV2[2] << endl;
+//
+//        cout << Normal[0] << " " << Normal[1] << " " << Normal[2] << endl;
+        
+    }
+    else
+        cout << "naw" << endl;
+//
+//       cout << Normal[0] << " " << Normal[1] << " " << Normal[2] << endl;
+    //Find the normal vector to the plane
+    double implicit = Normal[0]*(origin + rayDirectionArray[x][y][0]*t) + Normal[1]*(origin  + rayDirectionArray[x][y][1]*t) + Normal[2]*(origin  + rayDirectionArray[x][y][2]*t);
+    t = -(Normal[0]*origin + Normal[1]*origin + Normal[2]*origin + 1)/(Normal[0]*rayDirectionArray[x][y][0] + Normal[1]*rayDirectionArray[x][y][1] + Normal[2]*rayDirectionArray[x][y][2]);
+    
+    cout << t << endl;
+    //Normal[0] = lengthX;///magnitude;
+//    Normal[1] = lengthY;///magnitude;
+//    Normal[2] = lengthZ;///magnitude;
+   
+   // cout << Area[0] << " " << Area[1] << " " << Area[2] << endl;
+    
+//    for(int g = 0;g<3;g++)
+//        cout << A[g] << " " << B[g] << " " << C[g] << endl;
+//    cout << area << endl;
 }
 
 
@@ -200,7 +266,6 @@ void draw_scene()
     createPixelGrid();
     //generateRays(1, 319,239);
     
-    
   //simple output
   for(x=0; x<WIDTH; x++)
   {
@@ -208,12 +273,9 @@ void draw_scene()
     glBegin(GL_POINTS);
     for(y=0;y < HEIGHT;y++)
     {
-//        double radAngle = radinConversion(fov);
-//        cout << radAngle << endl;
-//        xPos = (HEIGHT/WIDTH)*tan(radAngle/2);
-//        yPos = tan(radAngle/2);
         calculateSphereIntersection(x,y);
-        
+        calculateTriangleIntersection(x, y);
+
     }
     glEnd();
     glFlush();

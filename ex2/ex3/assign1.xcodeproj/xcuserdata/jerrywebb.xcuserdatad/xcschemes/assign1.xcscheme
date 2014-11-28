@@ -67,7 +67,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/jerrywebb/Documents/cs420/ex3/assign1/screenfile.txt"
+            argument = "/Users/jerrywebb/Documents/cs420/ex2/ex3/assign1/screenfile.txt"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

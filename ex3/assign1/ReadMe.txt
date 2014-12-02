@@ -13,7 +13,7 @@ Feature:                                 Status: finish? (yes/no)
 -------------------------------------    -------------------------
 1) Ray tracing triangles                  !!!no, explain!!!
 
-2) Ray tracing sphere                     !!!no, explain!!!
+2) Ray tracing sphere                     !!!yes, the 2D outline of the sphere is now visible!!!
 
 3) Triangle Phong Shading                 !!!no, explain!!!
 
